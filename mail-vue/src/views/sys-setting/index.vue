@@ -246,6 +246,15 @@
                 </div>
               </div>
               <div class="setting-item">
+                <div><span>{{ $t('dingtalkBot') }}</span></div>
+                <div class="forward">
+                  <span>{{ setting.dingtalkStatus === 0 ? $t('enabled') : $t('disabled') }}</span>
+                  <el-button class="opt-button" size="small" type="primary" @click="openDingtalkSetting">
+                    <Icon icon="fluent:settings-48-regular" width="18" height="18"/>
+                  </el-button>
+                </div>
+              </div>
+              <div class="setting-item">
                 <div><span>{{ $t('otherEmail') }}</span></div>
                 <div class="forward">
                   <span>{{ setting.forwardStatus === 0 ? $t('enabled') : $t('disabled') }}</span>
@@ -540,6 +549,31 @@
         </template>
       </el-dialog>
       <el-dialog
+          v-model="dingtalkSettingShow"
+          class="forward-dialog"
+      >
+        <template #header>
+          <div class="forward-head">
+            <span class="forward-set-title">{{ $t('dingtalkBot') }}</span>
+            <el-tooltip effect="dark" content="钉钉机器人 Webhook 地址">
+              <Icon class="warning" icon="fe:warning" width="18" height="18"/>
+            </el-tooltip>
+          </div>
+        </template>
+        <div class="forward-set-body">
+          <el-input placeholder="Webhook URL" v-model="dingtalkWebhook"></el-input>
+        </div>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-switch v-model="dingtalkStatus" :active-value="0" :inactive-value="1" :active-text="$t('enable')"
+                       :inactive-text="$t('disable')"/>
+            <el-button :loading="settingLoading" type="primary" @click="dingtalkBotSave">
+              {{ $t('save') }}
+            </el-button>
+          </div>
+        </template>
+      </el-dialog>
+      <el-dialog
           v-model="thirdEmailShow"
           class="forward-dialog"
       >
@@ -768,6 +802,7 @@ const resendTokenFormShow = ref(false)
 const r2DomainShow = ref(false)
 const turnstileShow = ref(false)
 const tgSettingShow = ref(false)
+const dingtalkSettingShow = ref(false)
 const noticePopupShow = ref(false)
 const thirdEmailShow = ref(false)
 const forwardRulesShow = ref(false)
@@ -840,6 +875,8 @@ const tgChatId = ref([])
 const customDomain = ref('')
 const tgBotStatus = ref(0)
 const tgBotToken = ref('')
+const dingtalkWebhook = ref('')
+const dingtalkStatus = ref(0)
 const forwardEmail = ref([])
 const forwardStatus = ref(0)
 const emailColumnWidth = ref(0)
@@ -981,6 +1018,12 @@ function openTgSetting() {
   tgSettingShow.value = true
 }
 
+function openDingtalkSetting() {
+  dingtalkStatus.value = setting.value.dingtalkStatus
+  dingtalkWebhook.value = setting.value.dingtalkWebhook
+  dingtalkSettingShow.value = true
+}
+
 function openNoticePopupSetting() {
   noticePopupShow.value = true
 }
@@ -1116,6 +1159,14 @@ function tgBotSave() {
     tgMsgFrom: tgMsgFrom.value,
     tgMsgText: tgMsgText.value,
     tgMsgTo: tgMsgTo.value
+  }
+  editSetting(form)
+}
+
+function dingtalkBotSave() {
+  const form = {
+    dingtalkWebhook: dingtalkWebhook.value,
+    dingtalkStatus: dingtalkStatus.value
   }
   editSetting(form)
 }
@@ -1315,6 +1366,7 @@ function editSetting(settingForm, refreshStatus = true) {
     resendTokenFormShow.value = false
     turnstileShow.value = false
     tgSettingShow.value = false
+    dingtalkSettingShow.value = false
     thirdEmailShow.value = false
     forwardRulesShow.value = false
     addVerifyCountShow.value = false
