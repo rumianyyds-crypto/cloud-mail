@@ -152,6 +152,7 @@ const zh = {
     ossDomainDesc: '如果是KV存储不要填',
     emailPush: '邮件推送',
     tgBot: 'Telegram 机器人',
+    dingtalkBot: '钉钉机器人',
     disable: '关闭',
     disabled: '已关闭',
     otherEmail: '第三方邮箱',
