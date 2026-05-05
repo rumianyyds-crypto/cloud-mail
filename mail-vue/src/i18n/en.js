@@ -152,6 +152,7 @@ const en = {
     ossDomainDesc: 'Leave empty if using KV storage.',
     emailPush: 'Email Push',
     tgBot: 'Telegram Bot',
+    dingtalkBot: 'Dingtalk Bot',
     disable: 'Disable',
     disabled: 'Disabled',
     otherEmail: 'Forwarding to External Email',
