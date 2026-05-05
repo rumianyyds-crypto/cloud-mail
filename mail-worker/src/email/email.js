@@ -10,6 +10,7 @@ import emailUtils from '../utils/email-utils';
 import roleService from '../service/role-service';
 import userService from '../service/user-service';
 import telegramService from '../service/telegram-service';
+import dingtalkService from '../service/dingtalk-service';
 
 export async function email(message, env, ctx) {
 
@@ -24,7 +25,9 @@ export async function email(message, env, ctx) {
 			ruleEmail,
 			ruleType,
 			r2Domain,
-			noRecipient
+			noRecipient,
+			dingtalkStatus,
+			dingtalkWebhook
 		} = await settingService.query({ env });
 
 		if (receive === settingConst.receive.CLOSE) {
@@ -145,6 +148,11 @@ export async function email(message, env, ctx) {
 		//转发到TG
 		if (tgBotStatus === settingConst.tgBotStatus.OPEN && tgChatId) {
 			await telegramService.sendEmailToBot({ env }, emailRow)
+		}
+
+		//转发到钉钉
+		if (dingtalkStatus === settingConst.tgBotStatus.OPEN && dingtalkWebhook) {
+			await dingtalkService.sendEmailToBot({ env }, emailRow)
 		}
 
 		//转发到其他邮箱
