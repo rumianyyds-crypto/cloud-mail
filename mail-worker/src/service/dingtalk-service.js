@@ -3,11 +3,26 @@ import jwtUtils from '../utils/jwt-utils';
 import domainUtils from "../utils/domain-uitls";
 import emailUtils from '../utils/email-utils';
 
+const encoder = new TextEncoder();
+
+async function generateDingtalkSign(timestamp, secret) {
+	const stringToSign = `${timestamp}\n${secret}`;
+	const key = await crypto.subtle.importKey(
+		'raw',
+		encoder.encode(secret),
+		{ name: 'HMAC', hash: 'SHA-256' },
+		false,
+		['sign']
+	);
+	const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(stringToSign));
+	return encodeURIComponent(btoa(String.fromCharCode(...new Uint8Array(signature))));
+}
+
 const dingtalkService = {
 
 	async sendEmailToBot(c, email) {
 
-		const { dingtalkWebhook, customDomain, tgMsgTo, tgMsgFrom, tgMsgText } = await settingService.query(c);
+		const { dingtalkWebhook, dingtalkSecret, customDomain, tgMsgTo, tgMsgFrom, tgMsgText } = await settingService.query(c);
 
 		if (!dingtalkWebhook) return;
 
@@ -29,7 +44,6 @@ const dingtalkService = {
 		let bodyText = '';
 		if (tgMsgText === 'show') {
 			const rawText = (emailUtils.formatText(email.text) || emailUtils.htmlToText(email.content));
-			// Truncate long text
 			bodyText = rawText.length > 500 ? rawText.substring(0, 500) + '...' : rawText;
 			bodyText = `\n\n---\n\n${bodyText}`;
 		}
@@ -44,7 +58,16 @@ const dingtalkService = {
 		const markdownText = textParts.join('\n\n');
 
 		try {
-			const res = await fetch(dingtalkWebhook, {
+			let webhookUrl = dingtalkWebhook;
+			if (dingtalkSecret) {
+				const timestamp = Date.now();
+				const sign = await generateDingtalkSign(timestamp, dingtalkSecret);
+				const separator = webhookUrl.includes('?') ? '&' : '?';
+				webhookUrl = `${webhookUrl}${separator}timestamp=${timestamp}&sign=${sign}`;
+			}
+
+			console.log('准备发送钉钉请求:', webhookUrl);
+			const res = await fetch(webhookUrl, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -60,8 +83,10 @@ const dingtalkService = {
 					}
 				})
 			});
+			const responseText = await res.text();
+			console.log(`钉钉响应状态: ${res.status}, 响应内容: ${responseText}`);
 			if (!res.ok) {
-				console.error(`转发钉钉失败 status: ${res.status} response: ${await res.text()}`);
+				console.error(`转发钉钉失败 status: ${res.status} response: ${responseText}`);
 			}
 		} catch (e) {
 			console.error(`转发钉钉失败:`, e.message);
@@ -69,5 +94,5 @@ const dingtalkService = {
 	}
 
 }
-export default dingtalkService;
 
+export default dingtalkService;
