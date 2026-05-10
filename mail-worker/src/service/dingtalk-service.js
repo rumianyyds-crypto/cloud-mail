@@ -29,39 +29,42 @@ const dingtalkService = {
 		const jwtToken = await jwtUtils.generateToken(c, { emailId: email.emailId })
 		const webAppUrl = customDomain ? `${domainUtils.toOssDomain(customDomain)}/api/telegram/getEmail/${jwtToken}` : 'https://www.cloudflare.com/404'
 
-		let senderLine = '';
+		let senderContent = '';
 		if (tgMsgFrom === 'show') {
-			senderLine = `📧 ${email.sendEmail}`;
+			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}<br>${email.sendEmail}`;
 		} else if (tgMsgFrom === 'only-name') {
-			senderLine = `👤 ${email.name || emailUtils.getName(email.sendEmail)}`;
+			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}`;
 		}
 
-		let receiverLine = '';
+		let receiverContent = '';
 		if (tgMsgTo === 'show') {
-			receiverLine = `📥 ${email.toEmail}`;
+			receiverContent = `${email.toEmail}`;
 		}
 
-		const markdownText = [
-			`## 📬 新邮件`,
-			``,
-			`**📌 主题**`,
-			`${email.subject || '无主题'}`,
-			``,
-			senderLine ? `**👤 发件人**` : '',
-			senderLine,
-			receiverLine ? `**📥 收件人**` : '',
-			receiverLine,
-			``
-		].filter(Boolean).join('\n');
-
-		let bodyText = '';
+		let bodyPreview = '';
 		if (tgMsgText === 'show') {
 			const rawText = (emailUtils.formatText(email.text) || emailUtils.htmlToText(email.content));
-			const preview = rawText.length > 300 ? rawText.substring(0, 300) + '...' : rawText;
-			bodyText = `\n---\n\n**📝 内容预览**\n\n${preview}`;
+			bodyPreview = rawText.length > 200 ? rawText.substring(0, 200) + '...' : rawText;
 		}
 
-		const fullText = bodyText ? `${markdownText}\n${bodyText}` : markdownText;
+		const fullText = [
+			`### 📬 新邮件`,
+			``,
+			`**📌 主题**`,
+			`**${email.subject || '无主题'}**`,
+			``,
+			senderContent ? `**👤 发件人**` : '',
+			senderContent ? `**${senderContent}**` : '',
+			``,
+			receiverContent ? `**📥 收件人**` : '',
+			receiverContent ? `**${receiverContent}**` : '',
+			``,
+			`🌐 [点击查看详情](${webAppUrl})`,
+			``,
+			bodyPreview ? `---` : '',
+			bodyPreview ? `**📝 内容预览**` : '',
+			bodyPreview
+		].filter(Boolean).join('<br>');
 
 		try {
 			let webhookUrl = dingtalkWebhook;
@@ -82,7 +85,7 @@ const dingtalkService = {
 					msgtype: 'markdown',
 					markdown: {
 						title: email.subject || '新邮件',
-						text: `${fullText}\n\n[🌐 点击查看邮件详情](${webAppUrl})`
+						text: fullText
 					}
 				})
 			});
