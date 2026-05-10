@@ -52,15 +52,19 @@ const dingtalkService = {
 			``,
 			`> 您收到一封新邮件`,
 			``,
-			`**主题**：${email.subject || '无主题'}`,
+			`**主题**：` ,
+			`**${email.subject || '无主题'}**`,
 			``,
-			`**发件人**：${senderDisplay}`,
+			`**发件人**：` ,
+			`${senderDisplay}`,
 			``,
-			`**收件人**：${receiverDisplay}`,
+			`**收件人**：` ,
+			`${receiverDisplay}`,
 			``,
-			`**内容预览**：${bodyDisplay}`,
+			`**内容预览**：` ,
+			`**${bodyDisplay}**`,
 			``,
-			`点击查看消息详情 ${webAppUrl}`
+			`🔗 [点击查看消息详情](${webAppUrl})`
 		].join('\n');
 
 		try {
