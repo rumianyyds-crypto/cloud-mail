@@ -153,6 +153,8 @@ const en = {
     emailPush: 'Email Push',
     tgBot: 'Telegram Bot',
     dingtalkBot: 'Dingtalk Bot',
+    dingtalkBotDesc: 'Forward received emails to Dingtalk bot',
+    webhookUrl: 'Webhook URL',
     disable: 'Disable',
     disabled: 'Disabled',
     otherEmail: 'Forwarding to External Email',
