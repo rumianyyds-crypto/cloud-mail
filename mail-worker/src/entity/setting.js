@@ -48,6 +48,7 @@ export const setting = sqliteTable('setting', {
 	minEmailPrefix: integer('min_email_prefix').default(0).notNull(),
 	emailPrefixFilter: text('email_prefix_filter').default('').notNull(),
 	dingtalkWebhook: text('dingtalk_webhook').default('').notNull(),
-	dingtalkStatus: integer('dingtalk_status').default(0).notNull()
+	dingtalkStatus: integer('dingtalk_status').default(0).notNull(),
+	dingtalkSecret: text('dingtalk_secret').default('').notNull()
 });
 export default setting
