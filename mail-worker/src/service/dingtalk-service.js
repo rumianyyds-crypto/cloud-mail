@@ -31,7 +31,7 @@ const dingtalkService = {
 
 		let senderContent = '';
 		if (tgMsgFrom === 'show') {
-			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}<br>${email.sendEmail}`;
+			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}：${email.sendEmail}`;
 		} else if (tgMsgFrom === 'only-name') {
 			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}`;
 		}
@@ -48,22 +48,22 @@ const dingtalkService = {
 		}
 
 		const fullText = [
-			`### 📬 新邮件`,
+			`### 新邮件`,
 			``,
-			`**📌 主题**`,
+			`**主题**`,
+			``,
 			`**${email.subject || '无主题'}**`,
 			``,
-			senderContent ? `**👤 发件人**` : '',
-			senderContent ? `**${senderContent}**` : '',
+			senderContent ? `**发件人**：**${senderContent}**` : '',
 			``,
-			receiverContent ? `**📥 收件人**` : '',
-			receiverContent ? `**${receiverContent}**` : '',
+			receiverContent ? `**收件人**：**${receiverContent}**` : '',
 			``,
-			`🌐 [点击查看详情](${webAppUrl})`,
+			`**邮件内容预览**`,
 			``,
-			bodyPreview ? `---` : '',
-			bodyPreview ? `**📝 内容预览**` : '',
-			bodyPreview
+			bodyPreview || '',
+			``,
+			`-----------------------------------------`,
+			`点击查看详情`
 		].filter(Boolean).join('<br>');
 
 		try {
