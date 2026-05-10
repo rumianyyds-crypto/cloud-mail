@@ -562,6 +562,7 @@
         </template>
         <div class="forward-set-body">
           <el-input :placeholder="$t('webhookUrl')" v-model="dingtalkWebhook"></el-input>
+          <el-input :placeholder="$t('dingtalkSecret')" v-model="dingtalkSecret" type="password" show-password></el-input>
           <el-input :placeholder="$t('customDomainDesc')" v-model="dingtalkCustomDomain" ></el-input>
           <div class="tg-msg-label">
             <span>{{t('from')}}</span>
@@ -925,6 +926,7 @@ const dingtalkCustomDomain = ref('')
 const dingtalkMsgFrom = ref('show')
 const dingtalkMsgTo = ref('show')
 const dingtalkMsgText = ref('hide')
+const dingtalkSecret = ref('')
 const forwardEmail = ref([])
 const forwardStatus = ref(0)
 const emailColumnWidth = ref(0)
@@ -1069,6 +1071,7 @@ function openTgSetting() {
 function openDingtalkSetting() {
   dingtalkStatus.value = setting.value.dingtalkStatus
   dingtalkWebhook.value = setting.value.dingtalkWebhook
+  dingtalkSecret.value = setting.value.dingtalkSecret || ''
   dingtalkCustomDomain.value = setting.value.customDomain || ''
   dingtalkMsgFrom.value = setting.value.tgMsgFrom || 'show'
   dingtalkMsgTo.value = setting.value.tgMsgTo || 'show'
@@ -1219,6 +1222,7 @@ function dingtalkBotSave() {
   const form = {
     dingtalkWebhook: dingtalkWebhook.value,
     dingtalkStatus: dingtalkStatus.value,
+    dingtalkSecret: dingtalkSecret.value,
     customDomain: dingtalkCustomDomain.value,
     tgMsgFrom: dingtalkMsgFrom.value,
     tgMsgTo: dingtalkMsgTo.value,
