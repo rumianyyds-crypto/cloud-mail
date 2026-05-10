@@ -555,13 +555,57 @@
         <template #header>
           <div class="forward-head">
             <span class="forward-set-title">{{ $t('dingtalkBot') }}</span>
-            <el-tooltip effect="dark" content="钉钉机器人 Webhook 地址">
+            <el-tooltip effect="dark" :content="$t('dingtalkBotDesc')">
               <Icon class="warning" icon="fe:warning" width="18" height="18"/>
             </el-tooltip>
           </div>
         </template>
         <div class="forward-set-body">
-          <el-input placeholder="Webhook URL" v-model="dingtalkWebhook"></el-input>
+          <el-input :placeholder="$t('webhookUrl')" v-model="dingtalkWebhook"></el-input>
+          <el-input :placeholder="$t('customDomainDesc')" v-model="dingtalkCustomDomain" ></el-input>
+          <div class="tg-msg-label">
+            <span>{{t('from')}}</span>
+            <el-select  v-model="dingtalkMsgFrom" >
+              <el-option
+                  :label="t('show')"
+                  value="show"
+              />
+              <el-option
+                  :label="t('hide')"
+                  value="hide"
+              />
+              <el-option
+                  :label="t('onlyName')"
+                  value="only-name"
+              />
+            </el-select>
+          </div>
+          <div class="tg-msg-label">
+            <span>{{t('recipient')}}</span>
+            <el-select  v-model="dingtalkMsgTo" >
+              <el-option
+                  :label="t('show')"
+                  value="show"
+              />
+              <el-option
+                  :label="t('hide')"
+                  value="hide"
+              />
+            </el-select>
+          </div>
+          <div class="tg-msg-label">
+            <span>{{t('emailText')}}</span>
+            <el-select  v-model="dingtalkMsgText" >
+              <el-option
+                  :label="t('show')"
+                  value="show"
+              />
+              <el-option
+                  :label="t('hide')"
+                  value="hide"
+              />
+            </el-select>
+          </div>
         </div>
         <template #footer>
           <div class="dialog-footer">
@@ -877,6 +921,10 @@ const tgBotStatus = ref(0)
 const tgBotToken = ref('')
 const dingtalkWebhook = ref('')
 const dingtalkStatus = ref(0)
+const dingtalkCustomDomain = ref('')
+const dingtalkMsgFrom = ref('show')
+const dingtalkMsgTo = ref('show')
+const dingtalkMsgText = ref('hide')
 const forwardEmail = ref([])
 const forwardStatus = ref(0)
 const emailColumnWidth = ref(0)
@@ -1021,6 +1069,10 @@ function openTgSetting() {
 function openDingtalkSetting() {
   dingtalkStatus.value = setting.value.dingtalkStatus
   dingtalkWebhook.value = setting.value.dingtalkWebhook
+  dingtalkCustomDomain.value = setting.value.customDomain || ''
+  dingtalkMsgFrom.value = setting.value.tgMsgFrom || 'show'
+  dingtalkMsgTo.value = setting.value.tgMsgTo || 'show'
+  dingtalkMsgText.value = setting.value.tgMsgText || 'hide'
   dingtalkSettingShow.value = true
 }
 
@@ -1166,7 +1218,11 @@ function tgBotSave() {
 function dingtalkBotSave() {
   const form = {
     dingtalkWebhook: dingtalkWebhook.value,
-    dingtalkStatus: dingtalkStatus.value
+    dingtalkStatus: dingtalkStatus.value,
+    customDomain: dingtalkCustomDomain.value,
+    tgMsgFrom: dingtalkMsgFrom.value,
+    tgMsgTo: dingtalkMsgTo.value,
+    tgMsgText: dingtalkMsgText.value
   }
   editSetting(form)
 }
