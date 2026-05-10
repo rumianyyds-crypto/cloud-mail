@@ -155,6 +155,7 @@ const en = {
     dingtalkBot: 'Dingtalk Bot',
     dingtalkBotDesc: 'Forward received emails to Dingtalk bot',
     webhookUrl: 'Webhook URL',
+    dingtalkSecret: 'Secret Key',
     disable: 'Disable',
     disabled: 'Disabled',
     otherEmail: 'Forwarding to External Email',
