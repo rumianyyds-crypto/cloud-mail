@@ -153,6 +153,8 @@ const zh = {
     emailPush: '邮件推送',
     tgBot: 'Telegram 机器人',
     dingtalkBot: '钉钉机器人',
+    dingtalkBotDesc: '可以将接收的邮件转发到钉钉机器人',
+    webhookUrl: 'Webhook 地址',
     disable: '关闭',
     disabled: '已关闭',
     otherEmail: '第三方邮箱',
