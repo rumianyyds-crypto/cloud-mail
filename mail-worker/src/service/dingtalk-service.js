@@ -29,33 +29,39 @@ const dingtalkService = {
 		const jwtToken = await jwtUtils.generateToken(c, { emailId: email.emailId })
 		const webAppUrl = customDomain ? `${domainUtils.toOssDomain(customDomain)}/api/telegram/getEmail/${jwtToken}` : 'https://www.cloudflare.com/404'
 
-		let senderText = '';
-		if (tgMsgFrom === 'only-name') {
-			senderText = `**发件人**：${email.name}`;
-		} else if (tgMsgFrom === 'show') {
-			senderText = `**发件人**：${email.name} <${email.sendEmail}>`;
+		let senderLine = '';
+		if (tgMsgFrom === 'show') {
+			senderLine = `📧 ${email.sendEmail}`;
+		} else if (tgMsgFrom === 'only-name') {
+			senderLine = `👤 ${email.name || emailUtils.getName(email.sendEmail)}`;
 		}
 
-		let receiverText = '';
+		let receiverLine = '';
 		if (tgMsgTo === 'show') {
-			receiverText = `**收件人**：${email.toEmail}`;
+			receiverLine = `📥 ${email.toEmail}`;
 		}
+
+		const markdownText = [
+			`## 📬 新邮件`,
+			``,
+			`**📌 主题**`,
+			`${email.subject || '无主题'}`,
+			``,
+			senderLine ? `**👤 发件人**` : '',
+			senderLine,
+			receiverLine ? `**📥 收件人**` : '',
+			receiverLine,
+			``
+		].filter(Boolean).join('\n');
 
 		let bodyText = '';
 		if (tgMsgText === 'show') {
 			const rawText = (emailUtils.formatText(email.text) || emailUtils.htmlToText(email.content));
-			bodyText = rawText.length > 500 ? rawText.substring(0, 500) + '...' : rawText;
-			bodyText = `\n\n---\n\n${bodyText}`;
+			const preview = rawText.length > 300 ? rawText.substring(0, 300) + '...' : rawText;
+			bodyText = `\n---\n\n**📝 内容预览**\n\n${preview}`;
 		}
 
-		const textParts = [
-			`### ${email.subject || '无主题'}`,
-			senderText,
-			receiverText,
-			bodyText
-		].filter(Boolean);
-
-		const markdownText = textParts.join('\n\n');
+		const fullText = bodyText ? `${markdownText}\n${bodyText}` : markdownText;
 
 		try {
 			let webhookUrl = dingtalkWebhook;
@@ -73,13 +79,10 @@ const dingtalkService = {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					msgtype: 'actionCard',
-					actionCard: {
+					msgtype: 'markdown',
+					markdown: {
 						title: email.subject || '新邮件',
-						text: markdownText,
-						btnOrientation: '0',
-						singleTitle: '查看邮件详情',
-						singleURL: webAppUrl
+						text: `${fullText}\n\n[🌐 点击查看邮件详情](${webAppUrl})`
 					}
 				})
 			});
