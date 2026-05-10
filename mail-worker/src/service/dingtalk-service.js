@@ -29,42 +29,39 @@ const dingtalkService = {
 		const jwtToken = await jwtUtils.generateToken(c, { emailId: email.emailId })
 		const webAppUrl = customDomain ? `${domainUtils.toOssDomain(customDomain)}/api/telegram/getEmail/${jwtToken}` : 'https://www.cloudflare.com/404'
 
-		let senderContent = '';
+		let senderDisplay = '';
 		if (tgMsgFrom === 'show') {
-			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}：${email.sendEmail}`;
+			senderDisplay = `${email.name || emailUtils.getName(email.sendEmail)} ${email.sendEmail}`;
 		} else if (tgMsgFrom === 'only-name') {
-			senderContent = `${email.name || emailUtils.getName(email.sendEmail)}`;
+			senderDisplay = `${email.name || emailUtils.getName(email.sendEmail)}`;
 		}
 
-		let receiverContent = '';
+		let receiverDisplay = '';
 		if (tgMsgTo === 'show') {
-			receiverContent = `${email.toEmail}`;
+			receiverDisplay = `${email.toEmail}`;
 		}
 
-		let bodyPreview = '';
+		let bodyDisplay = '';
 		if (tgMsgText === 'show') {
 			const rawText = (emailUtils.formatText(email.text) || emailUtils.htmlToText(email.content));
-			bodyPreview = rawText.length > 200 ? rawText.substring(0, 200) + '...' : rawText;
+			bodyDisplay = rawText.length > 200 ? rawText.substring(0, 200) + '...' : rawText;
 		}
 
 		const fullText = [
-			`### 新邮件`,
+			`## 📧 新邮件通知`,
 			``,
-			`**主题**`,
+			`> 您收到一封新邮件`,
 			``,
-			`**${email.subject || '无主题'}**`,
+			`**主题**：${email.subject || '无主题'}`,
 			``,
-			senderContent ? `**发件人**：**${senderContent}**` : '',
+			`**发件人**：${senderDisplay}`,
 			``,
-			receiverContent ? `**收件人**：**${receiverContent}**` : '',
+			`**收件人**：${receiverDisplay}`,
 			``,
-			`**邮件内容预览**`,
+			`**内容预览**：${bodyDisplay}`,
 			``,
-			bodyPreview || '',
-			``,
-			`-----------------------------------------`,
-			`点击查看详情`
-		].filter(Boolean).join('<br>');
+			`点击查看消息详情 ${webAppUrl}`
+		].join('\n');
 
 		try {
 			let webhookUrl = dingtalkWebhook;
